@@ -1,0 +1,33 @@
+name: PR Describe Bot
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  pull-requests: write   # post/edit the suggestion comment
+  contents: read
+
+jobs:
+  describe:
+    # The "labeled" event fires for ANY label; this guard makes it ours.
+    if: github.event.label.name == 'describe'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4   # shallow is fine; we fetch the diff via API
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate and post suggested description
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          pip install --quiet requests
+          python .github/scripts/describe_pr.py
