@@ -42,7 +42,6 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll() // Permit auth/flow
-                        .requestMatchers("/ws/**").permitAll() // Permit socket connection
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
